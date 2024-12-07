@@ -142,17 +142,19 @@ export class LocationSearchDialog extends SuggestModal<SuggestInfo> {
         if (this.dialogAction == 'newNote')
             this.plugin.newFrontMatterNote(
                 value.location,
+                value.name,
                 evt,
                 utils.sanitizePlaceNameForNoteName(value.name)
             );
         else if (this.dialogAction == 'addToNote')
-            this.addToNote(value.location, evt, value.name);
+            this.addToNote(value.location, value.name, evt, value.name);
         else if (this.dialogAction == 'custom' && this.customOnSelect != null)
             this.customOnSelect(value, evt);
     }
 
     async addToNote(
         location: leaflet.LatLng,
+        address: string,
         ev: MouseEvent | KeyboardEvent,
         query: string
     ) {
@@ -163,6 +165,14 @@ export class LocationSearchDialog extends SuggestModal<SuggestInfo> {
             this.file,
             this.settings.frontMatterKey,
             locationString,
+            false
+        );
+        utils.verifyOrAddFrontMatter(
+            this.app,
+            this.editor,
+            this.file,
+            this.settings.frontMatterAddressKey,
+            address,
             false
         );
     }

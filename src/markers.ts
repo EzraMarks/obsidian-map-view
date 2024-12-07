@@ -476,6 +476,25 @@ export function getFrontMatterLocation(
     return null;
 }
 
+/**
+ * Get the address stored in the front matter of a file
+ * @param file The file to load the front matter from
+ * @param app The Obsidian App instance
+ */
+export function getFrontMatterAddress(
+    file: TFile,
+    app: App,
+    settings: PluginSettings
+): string {
+    const fileCache = app.metadataCache.getFileCache(file);
+    const frontMatter = fileCache?.frontmatter;
+    if (frontMatter && settings.frontMatterAddressKey in frontMatter) {
+        const frontMatterAddress = frontMatter[settings.frontMatterAddressKey];
+        return frontMatterAddress || null;
+    }
+    return null;
+}
+
 export function addEdgesToMarkers(
     markers: BaseGeoLayer[],
     app: App,

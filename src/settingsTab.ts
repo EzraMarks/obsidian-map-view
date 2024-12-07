@@ -278,6 +278,22 @@ export class SettingsTab extends PluginSettingTab {
                     });
             });
         new Setting(containerEl)
+            .setName('Key for front matter address')
+            .setDesc(
+                'The key Map View uses to denote a front matter address. Restart required.'
+            )
+            .addText((component) => {
+                component
+                    .setValue(
+                        this.plugin.settings.frontMatterAddressKey ??
+                            DEFAULT_SETTINGS.frontMatterAddressKey
+                    )
+                    .onChange(async (value: string) => {
+                        this.plugin.settings.frontMatterAddressKey = value;
+                        this.plugin.saveSettings();
+                    });
+            });
+        new Setting(containerEl)
             .setName('Tag name to denote inline geolocations')
             .setDesc(
                 'Instead or in addition to the "locations:" YAML tag, you can use a regular tag that will mark for Map View that a note has inline geolocations, e.g. "#hasLocations". (Note: this has a performance penalty for the time being.)'
@@ -596,7 +612,7 @@ export class SettingsTab extends PluginSettingTab {
             .setHeading()
             .setName('Custom "Open In" Actions')
             .setDesc(
-                "'Open in' actions showing in geolocation-relevant popup menus. URL should have {x} and {y} as parameters to transfer."
+                "'Open in' actions showing in geolocation-relevant popup menus. URL should have {x} and {y} as parameters to transfer. Optionally can include {address}."
             );
 
         let openInActionsDiv: HTMLDivElement = null;

@@ -40,6 +40,7 @@ import {
 } from 'src/settings';
 import { MapState } from 'src/mapState';
 import {
+    getFrontMatterAddress,
     getFrontMatterLocation,
     matchInlineLocation,
     verifyLocation,
@@ -118,7 +119,12 @@ export default class MapViewPlugin extends Plugin {
                                   )
                                 : null;
                         if (location) {
-                            this.newFrontMatterNote(location, null, label);
+                            this.newFrontMatterNote(
+                                location,
+                                null,
+                                null,
+                                label
+                            );
                         }
                     } else if (params.mvaction === 'addtocurrentnotefm') {
                         const location =
@@ -762,6 +768,11 @@ export default class MapViewPlugin extends Plugin {
                 this.app,
                 this.settings
             );
+            const address = getFrontMatterAddress(
+                file,
+                this.app,
+                this.settings
+            );
             if (location) {
                 // If there is a geolocation in the front matter of the file
                 // Add an option to open it in the map
@@ -774,7 +785,7 @@ export default class MapViewPlugin extends Plugin {
                     this.settings
                 );
                 // Add an option to open it in the default app
-                menus.addOpenWith(menu, location, this.settings);
+                menus.addOpenWith(menu, location, address, this.settings);
             } else {
                 if (editor) {
                     // If there is no valid geolocation in the front matter, add a menu item to populate it.
@@ -841,7 +852,7 @@ export default class MapViewPlugin extends Plugin {
                         this,
                         this.settings
                     );
-                    menus.addOpenWith(menu, location, this.settings);
+                    menus.addOpenWith(menu, location, null, this.settings);
                 }
             }
             menus.addUrlConversionItems(
@@ -918,6 +929,7 @@ export default class MapViewPlugin extends Plugin {
 
     async newFrontMatterNote(
         location: leaflet.LatLng,
+        address: string,
         ev: MouseEvent | KeyboardEvent | null,
         query: string
     ) {
@@ -933,6 +945,8 @@ export default class MapViewPlugin extends Plugin {
             newFileName,
             locationString,
             this.settings.frontMatterKey,
+            address,
+            this.settings.frontMatterAddressKey,
             this.settings.newNoteTemplate
         );
         // If there is an open map view, use it to decide how and where to open the file.

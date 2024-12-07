@@ -100,12 +100,14 @@ export async function newNote(
     fileName: string,
     location: string,
     frontMatterKey: string,
+    address: string,
+    frontMatterAddressKey: string,
     templatePath?: string
 ): Promise<[TFile, number]> {
     // `$CURSOR$` is used to set the cursor
     let content =
         newNoteType === 'singleLocation'
-            ? `---\n${frontMatterKey}: "${location}"\n---\n\n${CURSOR}`
+            ? `---\n${frontMatterKey}: "${location}"\n${frontMatterAddressKey}: "${address}"\n---\n\n${CURSOR}`
             : `---\nlocations:\n---\n\n\[${CURSOR}](geo:${location})\n`;
     let templateContent = '';
     if (templatePath && templatePath.length > 0)

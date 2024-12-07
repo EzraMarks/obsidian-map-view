@@ -35,6 +35,7 @@ import {
     finalizeMarkers,
     addEdgesToMarkers,
     cacheTagsFromMarkers,
+    getFrontMatterAddress,
 } from 'src/markers';
 import { getIconFromOptions, IconOptions } from 'src/markerIcons';
 import MapViewPlugin from 'src/main';
@@ -934,7 +935,17 @@ export class MapContainer {
                 mapPopup,
                 this.settings
             );
-            menus.populateOpenInItems(mapPopup, marker.location, this.settings);
+            const address = getFrontMatterAddress(
+                marker.file,
+                this.app,
+                this.settings
+            );
+            menus.populateOpenInItems(
+                mapPopup,
+                marker.location,
+                address,
+                this.settings
+            );
         }
         if (ev) mapPopup.showAtPosition(ev);
     }
@@ -1454,7 +1465,7 @@ export class MapContainer {
             this.display.map.scrollWheelZoom.disable();
             this.display.map.boxZoom.disable();
             this.display.map.keyboard.disable();
-            if (this.display.map.tap) this.display.map.tap.disable();
+            if (this.display.map as any) (this.display.map as any).disable();
             if (this.display.zoomControls) {
                 this.display.zoomControls.remove();
                 this.display.zoomControls = null;
@@ -1466,7 +1477,7 @@ export class MapContainer {
             this.display.map.scrollWheelZoom.enable();
             this.display.map.boxZoom.enable();
             this.display.map.keyboard.enable();
-            if (this.display.map.tap) this.display.map.tap.disable();
+            if (this.display.map as any) (this.display.map as any).disable();
             if (!this.display.zoomControls) this.addZoomButtons();
         }
     }

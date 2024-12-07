@@ -28,6 +28,7 @@ export type PluginSettings = {
     chosenMapSource?: number;
     mapSources: TileSource[];
     frontMatterKey: string;
+    frontMatterAddressKey: string;
     chosenMapMode?: MapLightDark;
     // Deprecated
     defaultMapCenter?: LatLng;
@@ -222,6 +223,7 @@ export const DEFAULT_SETTINGS: PluginSettings = {
         },
     ],
     frontMatterKey: 'location',
+    frontMatterAddressKey: 'address',
     chosenMapMode: 'auto',
     saveHistory: true,
     letZoomBeyondMax: false,

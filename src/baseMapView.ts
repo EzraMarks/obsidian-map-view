@@ -63,7 +63,10 @@ export abstract class BaseMapView extends ItemView {
             if (!this.leaf || this.leaf.view == null) return;
             const viewState = this.leaf?.getViewState();
             if (viewState?.state) {
-                const newState = mergeStates(viewState.state, partialState);
+                const newState = mergeStates(
+                    viewState.state as MapState,
+                    partialState
+                );
                 this.leaf.setViewState({ ...viewState, state: newState });
                 return newState;
             }
