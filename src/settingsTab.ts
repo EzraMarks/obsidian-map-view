@@ -16,10 +16,11 @@ import {
     LinkNamePopupBehavior,
     DEFAULT_SETTINGS,
 } from 'src/settings';
-import { getIconFromOptions, getIconFromRules } from 'src/markerIcons';
+import { getIconFromOptions } from 'src/markerIcons';
 import { BaseMapView } from 'src/baseMapView';
 import * as consts from 'src/consts';
 import { DEFAULT_MAX_TILE_ZOOM, MAX_ZOOM } from 'src/consts';
+import { QuerySuggest } from './query';
 
 export class SettingsTab extends PluginSettingTab {
     plugin: MapViewPlugin;
@@ -650,7 +651,7 @@ export class SettingsTab extends PluginSettingTab {
         const iconRulesHeading = new Setting(containerEl)
             .setHeading()
             .setName('Marker Icon Rules');
-        iconRulesHeading.descEl.innerHTML = `Customize map markers by note tags.
+        iconRulesHeading.descEl.innerHTML = `Customize map markers by query.
 			Refer to <a href="https://fontawesome.com/">Font Awesome</a> for icon names or use <a href="https://emojipedia.org">emojis</a>, and see <a href="https://github.com/coryasilva/Leaflet.ExtraMarkers#properties">here</a> for the other properties.
 			<br>The rules override each other, starting from the default. Refer to the plugin documentation for more details.
 		`;
@@ -994,13 +995,37 @@ export class SettingsTab extends PluginSettingTab {
                     .addText(
                         (component) =>
                             (component
-                                .setPlaceholder('Tag name')
+                                .setPlaceholder('Query')
                                 .setDisabled(rule.preset)
                                 .setValue(rule.ruleName)
                                 .onChange(async (value) => {
                                     rule.ruleName = value;
                                     await this.plugin.saveSettings();
                                     updateIconAndJson();
+                                    // Use suggester popup to guide the user in creating a query string
+                                    let suggestor: QuerySuggest = null;
+                                    component.inputEl.addEventListener(
+                                        'focus',
+                                        (ev: FocusEvent) => {
+                                            if (!suggestor) {
+                                                suggestor = new QuerySuggest(
+                                                    this.app,
+                                                    this.plugin,
+                                                    component
+                                                );
+                                                suggestor.open();
+                                            }
+                                        }
+                                    );
+                                    component.inputEl.addEventListener(
+                                        'focusout',
+                                        (ev: FocusEvent) => {
+                                            if (suggestor) {
+                                                suggestor.close();
+                                                suggestor = null;
+                                            }
+                                        }
+                                    );
                                 }).inputEl.style.width = '10em')
                     )
                     .addText(
@@ -1125,34 +1150,6 @@ export class SettingsTab extends PluginSettingTab {
                 iconUpdateFunctions.push(updateIconAndJson);
                 updateIconAndJson();
             }
-
-            let multiTagIconElement: HTMLElement = null;
-            let testTagsBox: TextComponent = null;
-            const ruleTestSetting = new Setting(containerEl)
-                .setName('Marker preview tester')
-                .addText((component) => {
-                    component
-                        .setPlaceholder('#tagOne #tagTwo')
-                        .onChange((value) => {
-                            updateMultiTagPreview();
-                        });
-                    testTagsBox = component;
-                });
-            const updateMultiTagPreview = () => {
-                if (multiTagIconElement)
-                    ruleTestSetting.controlEl.removeChild(multiTagIconElement);
-                const compiledIcon = getIconFromRules(
-                    testTagsBox.getValue().split(' '),
-                    rules,
-                    this.plugin.iconFactory
-                );
-                multiTagIconElement = compiledIcon.createIcon();
-                let style = multiTagIconElement.style;
-                style.marginLeft = style.marginTop = '0';
-                style.position = 'relative';
-                ruleTestSetting.controlEl.append(multiTagIconElement);
-            };
-            updateMultiTagPreview();
         };
         createRules();
         new Setting(containerEl)

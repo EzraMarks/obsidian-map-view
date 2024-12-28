@@ -303,9 +303,10 @@ export function finalizeMarkers(
     for (const marker of markers) {
         if (marker instanceof FileMarker) {
             marker.icon = getIconFromRules(
-                marker.tags,
+                marker,
                 settings.markerIconRules,
-                iconFactory
+                iconFactory,
+                app
             );
         } else {
             throw 'Unsupported object type ' + marker.constructor.name;

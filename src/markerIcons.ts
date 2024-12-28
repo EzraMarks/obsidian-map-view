@@ -21,6 +21,9 @@ let localL = L;
 import wildcard from 'wildcard';
 
 import { MarkerIconRule } from 'src/settings';
+import { Query } from './query';
+import { App } from 'obsidian';
+import { FileMarker } from './markers';
 
 // An extended Map View icon options, adding 'simple-circle' to the options of the 'shape' field.
 export interface IconOptions
@@ -29,15 +32,19 @@ export interface IconOptions
 }
 
 export function getIconFromRules(
-    tags: string[],
+    marker: FileMarker,
     rules: MarkerIconRule[],
-    iconFactory: IconFactory
+    iconFactory: IconFactory,
+    app: App
 ) {
     // We iterate over the rules and apply them one by one, so later rules override earlier ones
     let result = rules.find((item) => item.ruleName === 'default').iconDetails;
     for (const rule of rules) {
-        if (checkTagPatternMatch(rule.ruleName, tags)) {
-            result = Object.assign({}, result, rule.iconDetails);
+        if (rule.ruleName != 'default') {
+            const query = new Query(app, rule.ruleName);
+            if (query.testMarker(marker)) {
+                result = Object.assign({}, result, rule.iconDetails);
+            }
         }
     }
     return getIconFromOptions(result, iconFactory);
